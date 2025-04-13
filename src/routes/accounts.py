@@ -183,7 +183,7 @@ async def login_user(
 ):
     user = await db.execute(select(UserModel).where(UserModel.email == data.email))
     user = user.scalar_one_or_none()
-    if not user or (user and not verify_password(data.password, user.hashed_password)):
+    if not user or (user or not verify_password(data.password, user.hashed_password)):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password."
