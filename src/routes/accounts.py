@@ -27,7 +27,11 @@ from src.schemas.accounts import (
     UserRegistrationRequestSchema,
     UserRegistrationResponseSchema,
     UserActivationRequestSchema,
-    PasswordResetRequestSchema, PasswordResetCompleteRequestSchema, UserLoginResponseSchema, UserLoginRequestSchema
+    PasswordResetRequestSchema,
+    PasswordResetCompleteRequestSchema,
+    UserLoginResponseSchema,
+    UserLoginRequestSchema,
+    TokenRefreshRequestSchema
 )
 
 router = APIRouter()
@@ -140,7 +144,7 @@ async def complete_password_reset(
 ) -> Response:
     user = await db.execute(select(UserModel).where(UserModel.email == data.email))
     user = user.scalar_one_or_none()
-    if user or not user.is_active:
+    if not user or not user.is_active:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid email or token.")
     reset_token = await db.execute(
         select(PasswordResetTokenModel)
@@ -231,7 +235,7 @@ async def refresh_token(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Refresh token not found."
         )
     user = await db.execute(select(UserModel).where(UserModel.id == decoded_token["user_id"]))
-    if not user.scalar():
+    if not user.scalar_one_or_none()():
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="User not found."
         )

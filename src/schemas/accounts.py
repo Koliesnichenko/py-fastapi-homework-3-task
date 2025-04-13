@@ -48,5 +48,5 @@ class UserLoginResponseSchema(BaseModel):
     token_type: str
 
 
-class TokenRefreshResponseSchema(BaseModel):
+class TokenRefreshRequestSchema(BaseModel):
     refresh_token: str
